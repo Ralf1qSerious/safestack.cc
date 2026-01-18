@@ -6,194 +6,17 @@
   <title>SafeStack | Updates</title>
   <meta name="description" content="Product-style updates and changelog for SafeStack." />
   <link rel="stylesheet" href="css/style.css" />
-
-  <style>
-    /* ===== Badge color system (local to this page) ===== */
-    .ss-badges { display:flex; gap:0.4rem; flex-wrap:wrap; }
-
-    .ss-badge{
-      display:inline-flex;
-      align-items:center;
-      gap:0.35rem;
-      padding: 0.22rem 0.55rem;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.16);
-      background: rgba(255,255,255,0.03);
-      color: rgba(230,237,243,0.92);
-      font-weight: 800;
-      font-size: 0.85rem;
-      line-height: 1;
-      position: relative;
-      cursor: default;
-      user-select: none;
-    }
-    .ss-badge .ic { opacity: 0.95; }
-
-    /* Role variants */
-    .ss-badge.admin{
-      border-color: rgba(245,158,11,0.30);
-      background: rgba(245,158,11,0.10);
-      box-shadow: 0 0 0 1px rgba(245,158,11,0.08) inset;
-    }
-    .ss-badge.owner{
-      border-color: rgba(168,85,247,0.30);
-      background: rgba(168,85,247,0.10);
-      box-shadow: 0 0 0 1px rgba(168,85,247,0.08) inset;
-    }
-    .ss-badge.dev{
-      border-color: rgba(56,189,248,0.30);
-      background: rgba(56,189,248,0.10);
-      box-shadow: 0 0 0 1px rgba(56,189,248,0.08) inset;
-    }
-    .ss-badge.security{
-      border-color: rgba(34,197,94,0.30);
-      background: rgba(34,197,94,0.10);
-      box-shadow: 0 0 0 1px rgba(34,197,94,0.08) inset;
-    }
-    .ss-badge.mod, .ss-badge.moderator{
-      border-color: rgba(248,113,113,0.30);
-      background: rgba(248,113,113,0.10);
-      box-shadow: 0 0 0 1px rgba(248,113,113,0.08) inset;
-    }
-    .ss-badge.staff{
-      border-color: rgba(148,163,184,0.32);
-      background: rgba(148,163,184,0.10);
-      box-shadow: 0 0 0 1px rgba(148,163,184,0.08) inset;
-    }
-    .ss-badge.contributor{
-      border-color: rgba(45,212,191,0.30);
-      background: rgba(45,212,191,0.10);
-      box-shadow: 0 0 0 1px rgba(45,212,191,0.08) inset;
-    }
-    .ss-badge.verified{
-      border-color: rgba(56,189,248,0.30);
-      background: rgba(56,189,248,0.10);
-      box-shadow: 0 0 0 1px rgba(56,189,248,0.08) inset;
-    }
-
-    /* ===== Tooltips ===== */
-    .ss-badge[data-tip]::after{
-      content: attr(data-tip);
-      position: absolute;
-      left: 50%;
-      bottom: calc(100% + 10px);
-      transform: translateX(-50%);
-      width: max-content;
-      max-width: 280px;
-      padding: 0.45rem 0.6rem;
-      border-radius: 12px;
-      border: 1px solid rgba(148,163,184,0.16);
-      background: rgba(7,10,18,0.92);
-      color: rgba(230,237,243,0.92);
-      font-weight: 650;
-      font-size: 0.83rem;
-      letter-spacing: 0.1px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 140ms ease, transform 140ms ease;
-      box-shadow: 0 14px 50px rgba(0,0,0,0.45);
-      backdrop-filter: blur(10px);
-      white-space: normal;
-      z-index: 50;
-    }
-    .ss-badge[data-tip]::before{
-      content: "";
-      position: absolute;
-      left: 50%;
-      bottom: calc(100% + 4px);
-      transform: translateX(-50%);
-      width: 10px;
-      height: 10px;
-      rotate: 45deg;
-      background: rgba(7,10,18,0.92);
-      border-left: 1px solid rgba(148,163,184,0.12);
-      border-top: 1px solid rgba(148,163,184,0.12);
-      opacity: 0;
-      transition: opacity 140ms ease, transform 140ms ease;
-      z-index: 49;
-    }
-    .ss-badge:hover::after, .ss-badge:hover::before{
-      opacity: 1;
-      transform: translateX(-50%) translateY(-2px);
-    }
-
-    /* ===== Avatar ring (admin/verified) ===== */
-    .ss-avatar-wrap{
-      width: 56px; height: 56px;
-      border-radius: 18px;
-      position: relative;
-      display: grid;
-      place-items: center;
-    }
-    .ss-avatar-ring{
-      position:absolute;
-      inset:-2px;
-      border-radius: 20px;
-      padding: 2px;
-      background:
-        conic-gradient(from 90deg,
-          rgba(56,189,248,0.85),
-          rgba(34,197,94,0.70),
-          rgba(168,85,247,0.70),
-          rgba(56,189,248,0.85)
-        );
-      filter: blur(0px);
-      opacity: 0;
-      transition: opacity 200ms ease;
-      animation: ss-spin 3.8s linear infinite;
-      mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
-      -webkit-mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
-      mask-composite: exclude;
-      -webkit-mask-composite: xor;
-    }
-
-    /* Turn ring on when active */
-    .ss-avatar-wrap.ring-on .ss-avatar-ring{
-      opacity: 1;
-    }
-
-    .ss-avatar{
-      width: 54px; height: 54px;
-      border-radius: 16px;
-      border: 1px solid rgba(148,163,184,0.16);
-      overflow: hidden;
-      background: rgba(255,255,255,0.03);
-      box-shadow: 0 14px 40px rgba(0,0,0,0.35);
-    }
-    .ss-avatar img{
-      width:100%; height:100%;
-      object-fit: cover;
-      display:block;
-    }
-
-    @keyframes ss-spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-  </style>
 </head>
-
-<!-- Favicon -->
-<link rel="icon" href="/assets/favicon/favicon.ico" />
-<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png" />
-<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png" />
-<link rel="apple-touch-icon" href="/assets/favicon/apple-touch-icon.png" />
-<link rel="manifest" href="/assets/favicon/site.webmanifest" />
-<meta name="theme-color" content="#0b1220" />
 
 <body>
   <div class="bg-grid"></div>
 
   <header class="navbar">
     <div class="container navbar-inner">
-<div class="logo">
-  <img
-    src="/assets/logo-mark.png"
-    alt="SafeStack logo"
-    class="logo-icon"
-  />
-  <span>SafeStack</span>
-</div>
+      <div class="logo">
+        <div class="logo-badge"></div>
+        <span>SafeStack</span>
+      </div>
       <nav>
         <a href="index.html">Home</a>
         <a href="blog.html">Blog</a>
@@ -236,17 +59,141 @@
     <div class="container">
       <p>
         © 2026 SafeStack · Learn. Secure. Grow. ·
-                <a class="link" href="responsible-disclosure.html">Responsible Disclosure</a>
-         · 
-        <a class="link" href="status.html">Status</a>
+        <a class="link" href="responsible-disclosure.html">Responsible Disclosure</a>
       </p>
     </div>
   </footer>
 
+  <!-- Scripts: base.js MUST be first -->
+  <script src="js/base.js"></script>
   <script src="js/maintenance.js"></script>
   <script src="js/main.js"></script>
 
   <script>
+    /* ===== local styles (only this page) ===== */
+    const style = document.createElement("style");
+    style.textContent = `
+      .ss-badges { display:flex; gap:0.4rem; flex-wrap:wrap; }
+
+      .ss-badge{
+        display:inline-flex;
+        align-items:center;
+        gap:0.35rem;
+        padding: 0.22rem 0.55rem;
+        border-radius: 999px;
+        border: 1px solid rgba(148,163,184,0.16);
+        background: rgba(255,255,255,0.03);
+        color: rgba(230,237,243,0.92);
+        font-weight: 800;
+        font-size: 0.85rem;
+        line-height: 1;
+        position: relative;
+        cursor: default;
+        user-select: none;
+      }
+      .ss-badge .ic { opacity: 0.95; }
+
+      /* Role variants */
+      .ss-badge.admin{ border-color: rgba(245,158,11,0.30); background: rgba(245,158,11,0.10); }
+      .ss-badge.owner{ border-color: rgba(168,85,247,0.30); background: rgba(168,85,247,0.10); }
+      .ss-badge.dev{ border-color: rgba(56,189,248,0.30); background: rgba(56,189,248,0.10); }
+      .ss-badge.security{ border-color: rgba(34,197,94,0.30); background: rgba(34,197,94,0.10); }
+      .ss-badge.mod, .ss-badge.moderator{ border-color: rgba(248,113,113,0.30); background: rgba(248,113,113,0.10); }
+      .ss-badge.staff{ border-color: rgba(148,163,184,0.32); background: rgba(148,163,184,0.10); }
+      .ss-badge.contributor{ border-color: rgba(45,212,191,0.30); background: rgba(45,212,191,0.10); }
+      .ss-badge.verified{ border-color: rgba(56,189,248,0.30); background: rgba(56,189,248,0.10); }
+
+      /* Tooltips */
+      .ss-badge[data-tip]::after{
+        content: attr(data-tip);
+        position: absolute;
+        left: 50%;
+        bottom: calc(100% + 10px);
+        transform: translateX(-50%);
+        width: max-content;
+        max-width: 280px;
+        padding: 0.45rem 0.6rem;
+        border-radius: 12px;
+        border: 1px solid rgba(148,163,184,0.16);
+        background: rgba(7,10,18,0.92);
+        color: rgba(230,237,243,0.92);
+        font-weight: 650;
+        font-size: 0.83rem;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 140ms ease, transform 140ms ease;
+        box-shadow: 0 14px 50px rgba(0,0,0,0.45);
+        backdrop-filter: blur(10px);
+        white-space: normal;
+        z-index: 50;
+      }
+      .ss-badge[data-tip]::before{
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: calc(100% + 4px);
+        transform: translateX(-50%);
+        width: 10px;
+        height: 10px;
+        rotate: 45deg;
+        background: rgba(7,10,18,0.92);
+        border-left: 1px solid rgba(148,163,184,0.12);
+        border-top: 1px solid rgba(148,163,184,0.12);
+        opacity: 0;
+        transition: opacity 140ms ease, transform 140ms ease;
+        z-index: 49;
+      }
+      .ss-badge:hover::after, .ss-badge:hover::before{
+        opacity: 1;
+        transform: translateX(-50%) translateY(-2px);
+      }
+
+      /* Avatar ring */
+      .ss-avatar-wrap{
+        width: 56px; height: 56px;
+        border-radius: 18px;
+        position: relative;
+        display: grid;
+        place-items: center;
+      }
+      .ss-avatar-ring{
+        position:absolute;
+        inset:-2px;
+        border-radius: 20px;
+        padding: 2px;
+        background:
+          conic-gradient(from 90deg,
+            rgba(56,189,248,0.85),
+            rgba(34,197,94,0.70),
+            rgba(168,85,247,0.70),
+            rgba(56,189,248,0.85)
+          );
+        opacity: 0;
+        transition: opacity 200ms ease;
+        animation: ss-spin 3.8s linear infinite;
+        mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
+        -webkit-mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
+        mask-composite: exclude;
+        -webkit-mask-composite: xor;
+        pointer-events:none;
+      }
+      .ss-avatar-wrap.ring-on .ss-avatar-ring{ opacity: 1; }
+
+      .ss-avatar{
+        width: 54px; height: 54px;
+        border-radius: 16px;
+        border: 1px solid rgba(148,163,184,0.16);
+        overflow: hidden;
+        background: rgba(255,255,255,0.03);
+        box-shadow: 0 14px 40px rgba(0,0,0,0.35);
+      }
+      .ss-avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+      @keyframes ss-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    `;
+    document.head.appendChild(style);
+
+    /* ===== helpers ===== */
     const esc = (s) =>
       String(s ?? "")
         .replaceAll("&", "&amp;")
@@ -269,7 +216,6 @@
       }
     };
 
-    // Icons + tooltip definitions
     const BADGES = {
       Owner:       { icon: "👑", cls: "owner", tip: "Site owner. Controls publishing and configuration." },
       Admin:       { icon: "🛡️", cls: "admin", tip: "Administrator. Full access and moderation controls." },
@@ -292,15 +238,13 @@
 
     function renderBadges(badges) {
       const ordered = [];
-
       for (const k of ORDER) if (badges.includes(k)) ordered.push(k);
       for (const b of badges) if (!ordered.includes(b)) ordered.push(b);
 
       return ordered.map((b) => {
         const meta = BADGES[b] || { icon: "🏷️", cls: "staff", tip: "Custom badge." };
         return `
-          <span class="ss-badge ${meta.cls}"
-                data-tip="${esc(meta.tip)}">
+          <span class="ss-badge ${meta.cls}" data-tip="${esc(meta.tip)}">
             <span class="ic" aria-hidden="true">${meta.icon}</span>
             ${esc(b)}
           </span>
@@ -308,10 +252,17 @@
       }).join("");
     }
 
+    /* ===== main ===== */
     (async () => {
+      if (!window.ssUrl) {
+        document.getElementById("profileCard").innerHTML =
+          "<div class='muted'>Missing <code>js/base.js</code></div>";
+        return;
+      }
+
       let data;
       try {
-        const res = await fetch("/data/updates.json", { cache: "no-store" });
+        const res = await fetch(ssUrl("/data/updates.json"), { cache: "no-store" });
         if (!res.ok) throw new Error();
         data = await res.json();
       } catch {
@@ -324,18 +275,16 @@
       const updates = Array.isArray(data.updates) ? data.updates : [];
 
       const badges = normalizeBadges(profile.badges, profile.verified === true);
-
-      // Avatar ring on when Admin or Verified exists
       const ringOn = badges.includes("Admin") || badges.includes("Verified") || badges.includes("Owner");
-
-      const avatar = profile.avatar || "/assets/pfp.gif";
+      const avatar = profile.avatar || "assets/pfp.gif"; // safe default for GH pages
 
       document.getElementById("profileCard").innerHTML = `
         <div style="display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
           <div class="ss-avatar-wrap ${ringOn ? "ring-on" : ""}">
             <div class="ss-avatar-ring" aria-hidden="true"></div>
             <div class="ss-avatar">
-              <img src="${esc(avatar)}" alt="Profile picture"
+              <img src="${esc(ssUrl(avatar.startsWith("/") ? avatar : "/" + avatar))}"
+                   alt="Profile picture"
                    onerror="this.style.display='none'; this.parentElement.style.background='radial-gradient(80px 60px at 30% 30%, rgba(56,189,248,0.18), rgba(34,197,94,0.12)), rgba(255,255,255,0.03)';" />
             </div>
           </div>
@@ -357,7 +306,6 @@
         </div>
       `;
 
-      // Sort pinned first then newest
       updates.sort((a, b) => {
         const ap = a.pinned ? 1 : 0;
         const bp = b.pinned ? 1 : 0;
@@ -401,6 +349,7 @@
         grid.appendChild(el);
       }
 
+      document.getElementById("updatedAt").textContent = "Loaded from /data/updates.json";
     })();
   </script>
 </body>
