@@ -8,27 +8,15 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 
-<!-- Favicon -->
-<link rel="icon" href="/assets/favicon/favicon.ico" />
-<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png" />
-<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png" />
-<link rel="apple-touch-icon" href="/assets/favicon/apple-touch-icon.png" />
-<link rel="manifest" href="/assets/favicon/site.webmanifest" />
-<meta name="theme-color" content="#0b1220" />
-
 <body>
   <div class="bg-grid"></div>
 
   <header class="navbar">
     <div class="container navbar-inner">
-<div class="logo">
-  <img
-    src="/assets/logo-mark.png"
-    alt="SafeStack logo"
-    class="logo-icon"
-  />
-  <span>SafeStack</span>
-</div>
+      <div class="logo">
+        <div class="logo-badge"></div>
+        <span>SafeStack</span>
+      </div>
       <nav>
         <a href="index.html">Home</a>
         <a href="blog.html">Blog</a>
@@ -65,7 +53,7 @@
         <div class="section-head">
           <div>
             <h3 class="section-title">Timeline</h3>
-            <p class="section-subtitle">Recent overall status.</p>
+            <p class="section-subtitle">Recent overall status (config-driven).</p>
           </div>
         </div>
 
@@ -78,7 +66,7 @@
         <div class="section-head">
           <div>
             <h3 class="section-title">Incident history</h3>
-            <p class="section-subtitle">Recent incidents and maintenances.</p>
+            <p class="section-subtitle">Recent incidents and maintenance windows.</p>
           </div>
         </div>
 
@@ -98,52 +86,58 @@
     </div>
   </footer>
 
+  <!-- Scripts: base.js MUST be first -->
   <script src="js/base.js"></script>
   <script src="js/maintenance.js"></script>
   <script src="js/main.js"></script>
 
   <script>
-    (async () => {
-      const esc = (s) =>
-        String(s ?? "")
-          .replaceAll("&", "&amp;")
-          .replaceAll("<", "&lt;")
-          .replaceAll(">", "&gt;")
-          .replaceAll('"', "&quot;")
-          .replaceAll("'", "&#39;");
+    const esc = (s) =>
+      String(s ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
 
-      const badge = (status) => {
-        const map = {
-          operational: { label: "Operational", dot: "🟢" },
-          degraded: { label: "Degraded", dot: "🟠" },
-          partial_outage: { label: "Partial Outage", dot: "🟠" },
-          major_outage: { label: "Major Outage", dot: "🔴" },
-          maintenance: { label: "Maintenance", dot: "🟣" }
-        };
-        return map[status] || { label: "Unknown", dot: "⚪" };
+    const badge = (status) => {
+      const map = {
+        operational: { label: "Operational", dot: "🟢" },
+        degraded: { label: "Degraded", dot: "🟠" },
+        partial_outage: { label: "Partial Outage", dot: "🟠" },
+        major_outage: { label: "Major Outage", dot: "🔴" },
+        maintenance: { label: "Maintenance", dot: "🟣" }
       };
+      return map[status] || { label: "Unknown", dot: "⚪" };
+    };
 
-      // Best-effort live check (CORS may block; that's OK)
-      async function liveCheck(c) {
-        if (!c.checkUrl) return { live: null, note: "" };
-        try {
-          const ctrl = new AbortController();
-          const t = setTimeout(() => ctrl.abort(), c.timeoutMs || 2500);
-          const r = await fetch(c.checkUrl, { method: c.method || "GET", signal: ctrl.signal, cache: "no-store" });
-          clearTimeout(t);
-          return { live: r.ok ? "up" : "down", note: r.ok ? "Health check OK" : "Health check failed" };
-        } catch {
-          return { live: null, note: "Live check blocked (CORS) or timed out" };
-        }
+    // Best-effort live check (CORS may block; that's OK)
+    async function liveCheck(c) {
+      if (!c.checkUrl) return { live: null, note: "" };
+      try {
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), c.timeoutMs || 2500);
+        const r = await fetch(c.checkUrl, { method: c.method || "GET", signal: ctrl.signal, cache: "no-store" });
+        clearTimeout(t);
+        return { live: r.ok ? "up" : "down", note: r.ok ? "Health check OK" : "Health check failed" };
+      } catch {
+        return { live: null, note: "Live check blocked (CORS) or timed out" };
+      }
+    }
+
+    (async () => {
+      if (!window.ssUrl) {
+        document.getElementById("overall").textContent = "Missing js/base.js";
+        return;
       }
 
       let cfg;
       try {
-        const res = await fetch("/config.json", { cache: "no-store" });
+        const res = await fetch(ssUrl("/config.json"), { cache: "no-store" });
         if (!res.ok) throw new Error("config missing");
         cfg = await res.json();
       } catch {
-        document.getElementById("overall").textContent = "Status config not found.";
+        document.getElementById("overall").textContent = "Status config not found (config.json).";
         return;
       }
 
@@ -180,7 +174,7 @@
         const note = check.note ? `<p class="muted small" style="margin-top:0.5rem;">${esc(check.note)}</p>` : "";
 
         const el = document.createElement("article");
-        el.className = "card is-visible";  // IMPORTANT: force visible (no reveal bug)
+        el.className = "card is-visible";
         el.innerHTML = `
           <h3>${esc(c.name)}</h3>
           <div class="meta" style="margin-top:0.45rem;">
@@ -205,8 +199,9 @@
           <div style="display:flex; gap:0.55rem; flex-wrap:wrap; margin-top:0.2rem;">
             ${timeline.map((d) => {
               const b = badge(d.status);
+              const note = esc(d.note || "");
               return `
-                <div class="tag ${d.status === "operational" ? "brand" : ""}" title="${esc(d.note || "")}">
+                <div class="tag ${d.status === "operational" ? "brand" : ""}" title="${note}">
                   ${esc(d.date)} · ${b.dot} ${b.label}
                 </div>
               `;
@@ -257,4 +252,3 @@
   </script>
 </body>
 </html>
-
