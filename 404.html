@@ -38,7 +38,13 @@
   <header class="navbar">
     <div class="container navbar-inner">
 <div class="logo">
-<img src="assets/logo/logo-mark.png" class="logo-icon" alt="SafeStack logo">
+  <img
+    src="assets/logo-mark.png"
+    class="logo-icon"
+    alt="SafeStack logo"
+    onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';"
+  />
+  <span class="logo-badge" aria-hidden="true" style="display:none;"></span>
   <span>SafeStack</span>
 </div>
       <nav>
@@ -85,5 +91,6 @@
   <script src="js/main.js"></script>
 </body>
 </html>
+
 
 
