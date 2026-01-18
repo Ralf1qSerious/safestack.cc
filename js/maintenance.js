@@ -1,7 +1,11 @@
+// js/maintenance.js
 (async () => {
+  // base.js must run first
+  if (!window.ssUrl || !window.ssPath) return;
+
   let cfg;
   try {
-    const res = await fetch("/config.json", { cache: "no-store" });
+    const res = await fetch(ssUrl("/config.json"), { cache: "no-store" });
     if (!res.ok) return;
     cfg = await res.json();
   } catch {
@@ -11,7 +15,8 @@
   const m = cfg?.maintenance;
   if (!m?.enabled) return;
 
-  const path = window.location.pathname;
+  // Compare allowed paths against normalized path (no repo prefix)
+  const path = ssPath(); // ex: "/status.html"
   const allowed = (m.allowedPaths || []).some((p) => p === path);
   if (allowed) return;
 
@@ -29,6 +34,7 @@
   const sub = esc(m.submessage || "");
 
   const showIcon = m.showIcon !== false;
+
   const statusPath = m.statusPagePath || "/status.html";
   const showStatusButton = m.showStatusButton !== false;
 
@@ -43,7 +49,7 @@
   };
   const s = sevMap[sev] || sevMap.warning;
 
-  // Non-blocking banner mode
+  // Banner mode (non-blocking)
   if ((m.mode || "page") === "banner") {
     const banner = document.createElement("div");
     banner.setAttribute("role", "status");
@@ -69,7 +75,7 @@
             <span style="opacity:0.85;">${message}</span>
           </div>
           ${showStatusButton ? `
-            <a href="${esc(statusPath)}" style="
+            <a href="${esc(ssUrl(statusPath))}" style="
               padding: 0.35rem 0.65rem;
               border-radius: 999px;
               border: 1px solid ${s.br};
@@ -123,7 +129,6 @@
         position: relative;
         overflow: hidden;
       ">
-        <!-- glow -->
         <div style="
           position:absolute; inset:-2px;
           background:
@@ -166,7 +171,7 @@
             </div>
 
             <div style="display:flex; gap: 0.65rem; flex-wrap:wrap; justify-content:flex-end;">
-              <a href="${esc(primary.href || statusPath)}" style="
+              <a href="${esc(ssUrl(primary.href || statusPath))}" style="
                 display:inline-flex; align-items:center; justify-content:center;
                 padding: 0.72rem 0.95rem;
                 border-radius: 12px;
@@ -178,7 +183,7 @@
                 white-space: nowrap;
               ">${esc(primary.label || "View Status")} →</a>
 
-              <a href="${esc(secondary.href || "/index.html")}" style="
+              <a href="${esc(ssUrl(secondary.href || "/index.html"))}" style="
                 display:inline-flex; align-items:center; justify-content:center;
                 padding: 0.72rem 0.95rem;
                 border-radius: 12px;
@@ -195,11 +200,10 @@
           <p style="margin-top: 1.05rem; color: rgba(230,237,243,0.86); font-size: 1.02rem;">${message}</p>
           ${sub ? `<p style="margin-top: 0.35rem; color: rgba(230,237,243,0.62); font-size: 0.95rem;">${sub}</p>` : ""}
 
-          <!-- progress -->
           <div style="margin-top: 1.15rem; border-top: 1px solid rgba(148,163,184,0.10); padding-top: 1rem;">
             <div style="display:flex; align-items:center; justify-content:space-between; gap:0.8rem; flex-wrap:wrap;">
               <div style="font-weight:900; letter-spacing:0.2px;">Deployment progress</div>
-              <div class="muted" style="color: rgba(230,237,243,0.62); font-size:0.92rem;">
+              <div style="color: rgba(230,237,243,0.62); font-size:0.92rem;">
                 <span id="ss-last-updated">Last updated: just now</span>
                 <span style="opacity:0.55;"> · </span>
                 <span id="ss-eta">ETA: calculating…</span>
@@ -225,8 +229,17 @@
             </div>
 
             <div style="margin-top: 0.85rem; display:flex; gap:0.65rem; flex-wrap:wrap;">
-              <span class="tag brand" style="border-color:${s.br}; background:${s.bg};">Progress: <strong id="ss-pct" style="margin-left:0.3rem;">${progress}%</strong></span>
-              ${startIso ? `<span class="tag">Started: <strong style="margin-left:0.3rem;">${esc(new Date(startIso).toLocaleString())}</strong></span>` : ""}
+              <span style="
+                display:inline-flex; align-items:center; gap:0.35rem;
+                padding: 0.22rem 0.55rem; border-radius:999px;
+                border:1px solid ${s.br}; background:${s.bg}; font-weight:850;
+              ">Progress: <strong id="ss-pct" style="margin-left:0.3rem;">${progress}%</strong></span>
+              ${startIso ? `<span style="
+                display:inline-flex; align-items:center; gap:0.35rem;
+                padding: 0.22rem 0.55rem; border-radius:999px;
+                border:1px solid rgba(148,163,184,0.16); background:rgba(255,255,255,0.03);
+                font-weight:750; color: rgba(230,237,243,0.82);
+              ">Started: <strong style="margin-left:0.3rem;">${esc(new Date(startIso).toLocaleString())}</strong></span>` : ""}
             </div>
 
             <div style="
@@ -250,7 +263,6 @@
 
   document.body.appendChild(overlay);
 
-  // Dynamic bits (rotating updates + timers)
   const rot = document.getElementById("ss-rot");
   const etaEl = document.getElementById("ss-eta");
   const lastEl = document.getElementById("ss-last-updated");
@@ -286,11 +298,10 @@
     idx += 1;
   }
 
-  // tiny “pulse” to feel alive (progress nudges a bit but stays believable)
   function nudgeProgress() {
-    let p = Number(pctEl.textContent.replace("%", "")) || progress;
+    let p = Number(String(pctEl.textContent).replace("%", "")) || progress;
     if (p >= 99) return;
-    const bump = Math.random() < 0.6 ? 0 : 1; // small chance to bump
+    const bump = Math.random() < 0.6 ? 0 : 1;
     p = Math.min(99, p + bump);
     pctEl.textContent = p + "%";
     barEl.style.width = p + "%";
