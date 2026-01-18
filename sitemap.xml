@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <url>
+    <loc>https://safestack.cc/</loc>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://safestack.cc/blog.html</loc>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://safestack.cc/updates.html</loc>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://safestack.cc/status.html</loc>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://safestack.cc/resources.html</loc>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://safestack.cc/roadmap.html</loc>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://safestack.cc/linux-basics.html</loc>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://safestack.cc/sqli.html</loc>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://safestack.cc/about.html</loc>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://safestack.cc/contact.html</loc>
+    <priority>0.4</priority>
+  </url>
+
+</urlset>
