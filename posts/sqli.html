@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SafeStack | SQL Injection: Explained Simply</title>
+  <meta name="description" content="SQL Injection explained with safe, educational examples: root causes, detection mindset, and defenses." />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+
+<!-- Favicon -->
+<link rel="icon" href="/assets/favicon/favicon.ico" />
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png" />
+<link rel="apple-touch-icon" href="/assets/favicon/apple-touch-icon.png" />
+<link rel="manifest" href="/assets/favicon/site.webmanifest" />
+<meta name="theme-color" content="#0b1220" />
+
+<body>
+  <div class="bg-grid"></div>
+
+  <header class="navbar">
+    <div class="container navbar-inner">
+<div class="logo">
+  <img
+    src="/assets/logo-mark.png"
+    alt="SafeStack logo"
+    class="logo-icon"
+  />
+  <span>SafeStack</span>
+</div>
+      <nav>
+        <a href="../index.html">Home</a>
+        <a href="../blog.html">Blog</a>
+        <a href="../updates.html">Updates</a>
+        <a href="../resources.html">Resources</a>
+        <a href="../about.html">About</a>
+        <a href="../contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="container">
+      <h1 class="page-title">SQL Injection: Explained Simply</h1>
+      <p class="page-subtitle">Web · 8 min read · Published 2026-01-15</p>
+
+      <div class="divider"></div>
+
+      <section class="card content" data-reveal>
+        <h3>What SQL Injection is</h3>
+        <p>
+          SQL Injection (SQLi) is a vulnerability where an application accidentally treats user input as part of a SQL
+          query. The core problem is <strong>untrusted input influencing query structure</strong>, not “magic hacker strings”.
+        </p>
+
+        <h3>Why it happens (root cause)</h3>
+        <ul class="list">
+          <li>Building SQL queries by concatenating strings</li>
+          <li>Trusting input without validation/constraints</li>
+          <li>Using overly-privileged database accounts</li>
+          <li>Missing monitoring, rate limits, and error handling</li>
+        </ul>
+
+        <h3>Safe mental model</h3>
+        <p>
+          Think of a query in two parts: <strong>query structure</strong> + <strong>values</strong>.
+          SQLi happens when the attacker can change the structure. Defenses aim to lock structure and only allow values.
+        </p>
+
+        <h3>Insecure pattern (do not use)</h3>
+        <p class="muted small">
+          This is an educational example showing a common anti-pattern: string concatenation.
+        </p>
+
+        <div class="code-title">
+          <span class="dots">
+            <span class="dotbtn"></span><span class="dotbtn"></span><span class="dotbtn"></span>
+          </span>
+          insecure login query (anti-pattern)
+        </div>
+        <pre><code>// ❌ Anti-pattern: SQL built via string concatenation
+const query =
+  "SELECT id, username FROM users WHERE username = '" + username +
+  "' AND password = '" + password + "'";</code></pre>
+
+        <h3>Correct pattern: parameterized queries</h3>
+        <p>
+          Parameterization keeps the SQL structure fixed and sends values separately. This is the main fix for SQLi.
+        </p>
+
+        <div class="code-title">
+          <span class="dots">
+            <span class="dotbtn"></span><span class="dotbtn"></span><span class="dotbtn"></span>
+          </span>
+          parameterized query (concept)
+        </div>
+        <pre><code>SELECT id, username
+FROM users
+WHERE username = ? AND password = ?;</code></pre>
+
+        <h3>Defense checklist (what pros actually do)</h3>
+        <ul class="list">
+          <li><strong>Parameterized queries</strong> everywhere (ORMs can still be unsafe if misused)</li>
+          <li><strong>Least privilege</strong> DB users (apps shouldn’t have admin rights)</li>
+          <li><strong>Input constraints</strong> (length limits, allow-lists where appropriate)</li>
+          <li><strong>Safe error handling</strong> (don’t leak query errors to users)</li>
+          <li><strong>Logging & monitoring</strong> (spikes, unusual query patterns)</li>
+          <li><strong>WAF/rate limiting</strong> as a backup layer, not the main fix</li>
+        </ul>
+
+        <h3>Quick “review your code” questions</h3>
+        <ul class="list">
+          <li>Do we ever build SQL with <code>+</code>, template strings, or string formatting?</li>
+          <li>Do we use prepared statements/parameters for every query?</li>
+          <li>Do app DB credentials have only the minimum permissions needed?</li>
+          <li>Do we leak raw DB errors back to the browser?</li>
+        </ul>
+
+        <h3>Mini lab idea (safe)</h3>
+        <p>
+          Create a tiny demo app in a local dev environment that logs how queries are built
+          (no real users/data). Compare string concatenation vs parameterized queries and observe the difference.
+        </p>
+
+        <div class="code-title">
+          <span class="dots">
+            <span class="dotbtn"></span><span class="dotbtn"></span><span class="dotbtn"></span>
+          </span>
+          “structure vs values” rule of thumb
+        </div>
+        <pre><code>// ✅ Rule: SQL structure is constant, only values change
+// Use parameters, not concatenation.</code></pre>
+
+        <p class="muted small">
+          Ethical note: only test systems you own or have explicit permission to test.
+        </p>
+
+        <a class="link" href="../blog.html">← Back to Blog</a>
+      </section>
+    </div>
+  </main>
+
+<footer>
+  <div class="container">
+    <p>
+      © 2026 SafeStack · Learn. Secure. Grow. ·
+        <a class="link" href="responsible-disclosure.html">Responsible Disclosure</a>
+         · 
+        <a class="link" href="status.html">Status</a>
+    </p>
+  </div>
+</footer>
+
+  <script src="../js/maintenance.js"></script>
+  <script src="../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "profile": {
+    "displayName": "ralf1q",
+    "handle": "@safestack",
+    "badges": ["Admin", "Owner", "Dev", "Staff", "Contributor", "Security"],
+    "verified": true,
+    "avatar": "/assets/pfp.gif"
+  },
+  "updates": [
+    {
+      "id": "u-20260118-001",
+      "date": "2026-01-17T00:12:00Z",
+      "title": "Status page + maintenance system",
+      "body": "Added a maintenance overlay and a public status page with component health, timeline, and incident history. This improves transparency during updates.",
+      "tags": ["Release", "Site"],
+      "pinned": false
+    },
+    {
+      "id": "u-20260118-002",
+      "date": "2026-01-17T00:28:00Z",
+      "title": "Updates feed is live",
+      "body": "Launched a updates page for quick announcements, maintenance notes, and feature rollouts. Next: polish post navigation and add more write-ups.",
+      "tags": ["Update", "Changelog"],
+      "pinned": false
+    }
+  ]
+}

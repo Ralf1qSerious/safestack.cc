@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SafeStack | Linux Basics: Commands You’ll Actually Use</title>
+  <meta name="description" content="Practical Linux commands for navigation, permissions, networking, and troubleshooting." />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+
+<!-- Favicon -->
+<link rel="icon" href="/assets/favicon/favicon.ico" />
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png" />
+<link rel="apple-touch-icon" href="/assets/favicon/apple-touch-icon.png" />
+<link rel="manifest" href="/assets/favicon/site.webmanifest" />
+<meta name="theme-color" content="#0b1220" />
+
+<body>
+  <div class="bg-grid"></div>
+
+  <header class="navbar">
+    <div class="container navbar-inner">
+<div class="logo">
+  <img
+    src="/assets/logo-mark.png"
+    alt="SafeStack logo"
+    class="logo-icon"
+  />
+  <span>SafeStack</span>
+</div>
+      <nav>
+        <a href="../index.html">Home</a>
+        <a href="../blog.html">Blog</a>
+        <a href="../updates.html">Updates</a>
+        <a href="../resources.html">Resources</a>
+        <a href="../about.html">About</a>
+        <a href="../contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="container">
+      <h1 class="page-title">Linux Basics: Commands You’ll Actually Use</h1>
+      <p class="page-subtitle">Linux · 7 min read · Published 2026-01-11</p>
+
+      <div class="divider"></div>
+
+      <section class="card content" data-reveal>
+        <h3>Navigation</h3>
+
+        <div class="code-title">
+          <span class="dots">
+            <span class="dotbtn"></span><span class="dotbtn"></span><span class="dotbtn"></span>
+          </span>
+          move around
+        </div>
+        <pre><code>pwd            # show current directory
+ls -la         # list all files (including hidden) with details
+cd /path       # change directory
+cd ..          # go up one folder
+mkdir test     # create folder
+touch file.txt # create empty file</code></pre>
+
+        <h3>Reading files</h3>
+        <div class="code-title">
+          <span class="dots">
+            <span class="dotbtn"></span><span class="dotbtn"></span><span class="dotbtn"></span>
+          </span>
+          view file contents
+        </div>
+        <pre><code>cat file.txt         # print entire file
+less file.txt        # scroll through file
+head -n 20 file.txt  # first 20 lines
+tail -n 20 file.txt  # last 20 lines
+grep -n "admin" file.txt  # search for "admin" with line numbers</code></pre>
+
+        <h3>Permissions (important for security)</h3>
+        <p>
+          Permissions are a core security concept. Learn them early: read (<code>r</code>), write (<code>w</code>),
+          execute (<code>x</code>).
+        </p>
+
+        <div class="code-title">
+          <span class="dots">
+            <span class="dotbtn"></span><span class="dotbtn"></span><span class="dotbtn"></span>
+          </span>
+          permissions basics
+        </div>
+        <pre><code>ls -l                 # view permissions
+chmod 644 file.txt    # rw-r--r--
+chmod 755 script.sh   # rwxr-xr-x
+chown user:user file  # change owner and group</code></pre>
+
+        <h3>Processes</h3>
+        <div class="code-title">
+          <span class="dots">
+            <span class="dotbtn"></span><span class="dotbtn"></span><span class="dotbtn"></span>
+          </span>
+          process management
+        </div>
+        <pre><code>ps aux | head         # view processes
+top                   # live process view
+kill -9 PID           # kill a process by PID (use carefully)
+whoami                # current user
+id                    # user + groups</code></pre>
+
+        <h3>Networking checks</h3>
+        <div class="code-title">
+          <span class="dots">
+            <span class="dotbtn"></span><span class="dotbtn"></span><span class="dotbtn"></span>
+          </span>
+          quick network commands
+        </div>
+        <pre><code>ip a                  # show interfaces + IPs
+ip r                  # show routes
+ss -tulpen            # show listening ports + processes
+curl -I https://example.com  # fetch headers only
+ping -c 4 8.8.8.8     # basic connectivity check</code></pre>
+
+        <h3>Finding things</h3>
+        <div class="code-title">
+          <span class="dots">
+            <span class="dotbtn"></span><span class="dotbtn"></span><span class="dotbtn"></span>
+          </span>
+          search files
+        </div>
+        <pre><code>find . -name "*.conf"         # find files by name
+find / -perm -4000 2>/dev/null # find SUID binaries (advanced)
+which python                  # locate a command
+whereis ssh                   # find binary + docs</code></pre>
+
+        <h3>Pro tip: keep notes like a pro</h3>
+        <p>
+          Create a “commands.md” file and add what you use often. Your future self will thank you.
+        </p>
+
+        <a class="link" href="../blog.html">← Back to Blog</a>
+      </section>
+    </div>
+  </main>
+
+<footer>
+  <div class="container">
+    <p>
+      © 2026 SafeStack · Learn. Secure. Grow. ·
+        <a class="link" href="responsible-disclosure.html">Responsible Disclosure</a>
+         · 
+        <a class="link" href="status.html">Status</a>
+    </p>
+  </div>
+</footer>
+
+  <script src="../js/maintenance.js"></script>
+  <script src="../js/main.js"></script>
+</body>
+</html>

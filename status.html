@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SafeStack | Status</title>
+  <meta name="description" content="Service status for SafeStack components and APIs." />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<!-- Favicon -->
+<link rel="icon" href="/assets/favicon/favicon.ico" />
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png" />
+<link rel="apple-touch-icon" href="/assets/favicon/apple-touch-icon.png" />
+<link rel="manifest" href="/assets/favicon/site.webmanifest" />
+<meta name="theme-color" content="#0b1220" />
+
+<body>
+  <div class="bg-grid"></div>
+
+  <header class="navbar">
+    <div class="container navbar-inner">
+<div class="logo">
+  <img
+    src="/assets/logo-mark.png"
+    alt="SafeStack logo"
+    class="logo-icon"
+  />
+  <span>SafeStack</span>
+</div>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="blog.html">Blog</a>
+        <a href="updates.html">Updates</a>
+        <a href="resources.html">Resources</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="container">
+      <h1 class="page-title">Status</h1>
+      <p class="page-subtitle">Current health of SafeStack services and integrations.</p>
+
+      <div class="divider"></div>
+
+      <section class="card content">
+        <div id="overall" class="muted">Loading status…</div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h3 class="section-title">Components</h3>
+            <p class="section-subtitle">Each service and integration, with its current status.</p>
+          </div>
+        </div>
+        <div class="grid" id="statusGrid"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h3 class="section-title">Timeline</h3>
+            <p class="section-subtitle">Recent overall status.</p>
+          </div>
+        </div>
+
+        <section class="card content">
+          <div id="timeline" class="muted">No timeline data yet.</div>
+        </section>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h3 class="section-title">Incident history</h3>
+            <p class="section-subtitle">Recent incidents and maintenances.</p>
+          </div>
+        </div>
+
+        <div class="grid" id="incidentsGrid"></div>
+      </section>
+
+      <p class="muted small" id="updatedAt"></p>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>
+        © 2026 SafeStack · Learn. Secure. Grow. ·
+        <a class="link" href="responsible-disclosure.html">Responsible Disclosure</a>
+      </p>
+    </div>
+  </footer>
+
+  <script src="js/maintenance.js"></script>
+  <script src="js/main.js"></script>
+
+  <script>
+    (async () => {
+      const esc = (s) =>
+        String(s ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+
+      const badge = (status) => {
+        const map = {
+          operational: { label: "Operational", dot: "🟢" },
+          degraded: { label: "Degraded", dot: "🟠" },
+          partial_outage: { label: "Partial Outage", dot: "🟠" },
+          major_outage: { label: "Major Outage", dot: "🔴" },
+          maintenance: { label: "Maintenance", dot: "🟣" }
+        };
+        return map[status] || { label: "Unknown", dot: "⚪" };
+      };
+
+      // Best-effort live check (CORS may block; that's OK)
+      async function liveCheck(c) {
+        if (!c.checkUrl) return { live: null, note: "" };
+        try {
+          const ctrl = new AbortController();
+          const t = setTimeout(() => ctrl.abort(), c.timeoutMs || 2500);
+          const r = await fetch(c.checkUrl, { method: c.method || "GET", signal: ctrl.signal, cache: "no-store" });
+          clearTimeout(t);
+          return { live: r.ok ? "up" : "down", note: r.ok ? "Health check OK" : "Health check failed" };
+        } catch {
+          return { live: null, note: "Live check blocked (CORS) or timed out" };
+        }
+      }
+
+      let cfg;
+      try {
+        const res = await fetch("/config.json", { cache: "no-store" });
+        if (!res.ok) throw new Error("config missing");
+        cfg = await res.json();
+      } catch {
+        document.getElementById("overall").textContent = "Status config not found.";
+        return;
+      }
+
+      const comps = cfg?.status?.components || [];
+      const updated = cfg?.status?.updatedAt || "";
+      const incidents = cfg?.status?.incidents || [];
+      const timeline = cfg?.status?.timeline || [];
+
+      // overall = worst status by rank
+      const rank = { operational: 0, degraded: 1, partial_outage: 2, maintenance: 3, major_outage: 4 };
+      const overallStatus = comps.reduce((acc, c) => (rank[c.status] > rank[acc] ? c.status : acc), "operational");
+      const o = badge(overallStatus);
+
+      document.getElementById("overall").innerHTML = `
+        <strong>Overall:</strong> ${o.dot} ${o.label}
+        <span class="muted small"> · ${comps.length} components</span>
+      `;
+
+      // Render components
+      const grid = document.getElementById("statusGrid");
+      grid.innerHTML = "";
+
+      for (const c of comps) {
+        const b = badge(c.status);
+        const check = await liveCheck(c);
+
+        const liveTag =
+          check.live === "up" ? `<span class="tag brand">Live: UP</span>` :
+          check.live === "down" ? `<span class="tag">Live: DOWN</span>` :
+          (c.checkUrl ? `<span class="tag">Live: Unknown</span>` : "");
+
+        const details = c.details ? `<p>${esc(c.details)}</p>` : `<p class="muted">No details provided.</p>`;
+        const urlLine = c.checkUrl ? `<p class="muted small" style="margin-top:0.5rem;"><code>${esc(c.checkUrl)}</code></p>` : "";
+        const note = check.note ? `<p class="muted small" style="margin-top:0.5rem;">${esc(check.note)}</p>` : "";
+
+        const el = document.createElement("article");
+        el.className = "card is-visible";  // IMPORTANT: force visible (no reveal bug)
+        el.innerHTML = `
+          <h3>${esc(c.name)}</h3>
+          <div class="meta" style="margin-top:0.45rem;">
+            <span>${b.dot} ${b.label}</span>
+            <span class="dot">•</span>
+            <span>${esc(c.type || "service")}</span>
+          </div>
+          <div class="tags" style="margin-top:0.55rem;">${liveTag}</div>
+          ${details}
+          ${urlLine}
+          ${note}
+        `;
+        grid.appendChild(el);
+      }
+
+      // Timeline
+      const tlEl = document.getElementById("timeline");
+      if (!timeline.length) {
+        tlEl.textContent = "No timeline data yet. Add status.timeline to config.json.";
+      } else {
+        tlEl.innerHTML = `
+          <div style="display:flex; gap:0.55rem; flex-wrap:wrap; margin-top:0.2rem;">
+            ${timeline.map((d) => {
+              const b = badge(d.status);
+              return `
+                <div class="tag ${d.status === "operational" ? "brand" : ""}" title="${esc(d.note || "")}">
+                  ${esc(d.date)} · ${b.dot} ${b.label}
+                </div>
+              `;
+            }).join("")}
+          </div>
+        `;
+      }
+
+      // Incidents
+      const ig = document.getElementById("incidentsGrid");
+      ig.innerHTML = "";
+
+      if (!incidents.length) {
+        const empty = document.createElement("div");
+        empty.className = "card is-visible";
+        empty.innerHTML = `<h3>No incidents</h3><p class="muted">No incident history yet. Add status.incidents to config.json.</p>`;
+        ig.appendChild(empty);
+      } else {
+        for (const inc of incidents) {
+          const b = badge(inc.status);
+          const affected = (inc.affectedComponents || []).map(esc).join(", ");
+          const updates = (inc.updates || []).map(u => `
+            <li><strong>${esc(u.time)}</strong> — ${esc(u.message)}</li>
+          `).join("");
+
+          const el = document.createElement("article");
+          el.className = "card is-visible";
+          el.innerHTML = `
+            <h3>${esc(inc.title)}</h3>
+            <div class="meta" style="margin-top:0.45rem;">
+              <span>${b.dot} ${b.label}</span>
+              <span class="dot">•</span>
+              <span>${esc(inc.impact || "info")}</span>
+            </div>
+            <p style="margin-top:0.6rem;">${esc(inc.summary || "")}</p>
+            ${affected ? `<p class="muted small"><strong>Affected:</strong> ${affected}</p>` : ""}
+            <p class="muted small"><strong>Start:</strong> ${esc(inc.startedAt || "-")} ${inc.resolvedAt ? `· <strong>Resolved:</strong> ${esc(inc.resolvedAt)}` : ""}</p>
+            ${updates ? `<ul class="list" style="margin-top:0.6rem;">${updates}</ul>` : ""}
+          `;
+          ig.appendChild(el);
+        }
+      }
+
+      if (updated) {
+        document.getElementById("updatedAt").textContent = "Updated: " + updated;
+      }
+    })();
+  </script>
+</body>
+</html>

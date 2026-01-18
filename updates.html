@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SafeStack | Updates</title>
+  <meta name="description" content="Product-style updates and changelog for SafeStack." />
+  <link rel="stylesheet" href="css/style.css" />
+
+  <style>
+    /* ===== Badge color system (local to this page) ===== */
+    .ss-badges { display:flex; gap:0.4rem; flex-wrap:wrap; }
+
+    .ss-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:0.35rem;
+      padding: 0.22rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.16);
+      background: rgba(255,255,255,0.03);
+      color: rgba(230,237,243,0.92);
+      font-weight: 800;
+      font-size: 0.85rem;
+      line-height: 1;
+      position: relative;
+      cursor: default;
+      user-select: none;
+    }
+    .ss-badge .ic { opacity: 0.95; }
+
+    /* Role variants */
+    .ss-badge.admin{
+      border-color: rgba(245,158,11,0.30);
+      background: rgba(245,158,11,0.10);
+      box-shadow: 0 0 0 1px rgba(245,158,11,0.08) inset;
+    }
+    .ss-badge.owner{
+      border-color: rgba(168,85,247,0.30);
+      background: rgba(168,85,247,0.10);
+      box-shadow: 0 0 0 1px rgba(168,85,247,0.08) inset;
+    }
+    .ss-badge.dev{
+      border-color: rgba(56,189,248,0.30);
+      background: rgba(56,189,248,0.10);
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.08) inset;
+    }
+    .ss-badge.security{
+      border-color: rgba(34,197,94,0.30);
+      background: rgba(34,197,94,0.10);
+      box-shadow: 0 0 0 1px rgba(34,197,94,0.08) inset;
+    }
+    .ss-badge.mod, .ss-badge.moderator{
+      border-color: rgba(248,113,113,0.30);
+      background: rgba(248,113,113,0.10);
+      box-shadow: 0 0 0 1px rgba(248,113,113,0.08) inset;
+    }
+    .ss-badge.staff{
+      border-color: rgba(148,163,184,0.32);
+      background: rgba(148,163,184,0.10);
+      box-shadow: 0 0 0 1px rgba(148,163,184,0.08) inset;
+    }
+    .ss-badge.contributor{
+      border-color: rgba(45,212,191,0.30);
+      background: rgba(45,212,191,0.10);
+      box-shadow: 0 0 0 1px rgba(45,212,191,0.08) inset;
+    }
+    .ss-badge.verified{
+      border-color: rgba(56,189,248,0.30);
+      background: rgba(56,189,248,0.10);
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.08) inset;
+    }
+
+    /* ===== Tooltips ===== */
+    .ss-badge[data-tip]::after{
+      content: attr(data-tip);
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 10px);
+      transform: translateX(-50%);
+      width: max-content;
+      max-width: 280px;
+      padding: 0.45rem 0.6rem;
+      border-radius: 12px;
+      border: 1px solid rgba(148,163,184,0.16);
+      background: rgba(7,10,18,0.92);
+      color: rgba(230,237,243,0.92);
+      font-weight: 650;
+      font-size: 0.83rem;
+      letter-spacing: 0.1px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 140ms ease, transform 140ms ease;
+      box-shadow: 0 14px 50px rgba(0,0,0,0.45);
+      backdrop-filter: blur(10px);
+      white-space: normal;
+      z-index: 50;
+    }
+    .ss-badge[data-tip]::before{
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 4px);
+      transform: translateX(-50%);
+      width: 10px;
+      height: 10px;
+      rotate: 45deg;
+      background: rgba(7,10,18,0.92);
+      border-left: 1px solid rgba(148,163,184,0.12);
+      border-top: 1px solid rgba(148,163,184,0.12);
+      opacity: 0;
+      transition: opacity 140ms ease, transform 140ms ease;
+      z-index: 49;
+    }
+    .ss-badge:hover::after, .ss-badge:hover::before{
+      opacity: 1;
+      transform: translateX(-50%) translateY(-2px);
+    }
+
+    /* ===== Avatar ring (admin/verified) ===== */
+    .ss-avatar-wrap{
+      width: 56px; height: 56px;
+      border-radius: 18px;
+      position: relative;
+      display: grid;
+      place-items: center;
+    }
+    .ss-avatar-ring{
+      position:absolute;
+      inset:-2px;
+      border-radius: 20px;
+      padding: 2px;
+      background:
+        conic-gradient(from 90deg,
+          rgba(56,189,248,0.85),
+          rgba(34,197,94,0.70),
+          rgba(168,85,247,0.70),
+          rgba(56,189,248,0.85)
+        );
+      filter: blur(0px);
+      opacity: 0;
+      transition: opacity 200ms ease;
+      animation: ss-spin 3.8s linear infinite;
+      mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
+      -webkit-mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
+      mask-composite: exclude;
+      -webkit-mask-composite: xor;
+    }
+
+    /* Turn ring on when active */
+    .ss-avatar-wrap.ring-on .ss-avatar-ring{
+      opacity: 1;
+    }
+
+    .ss-avatar{
+      width: 54px; height: 54px;
+      border-radius: 16px;
+      border: 1px solid rgba(148,163,184,0.16);
+      overflow: hidden;
+      background: rgba(255,255,255,0.03);
+      box-shadow: 0 14px 40px rgba(0,0,0,0.35);
+    }
+    .ss-avatar img{
+      width:100%; height:100%;
+      object-fit: cover;
+      display:block;
+    }
+
+    @keyframes ss-spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+
+<!-- Favicon -->
+<link rel="icon" href="/assets/favicon/favicon.ico" />
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png" />
+<link rel="apple-touch-icon" href="/assets/favicon/apple-touch-icon.png" />
+<link rel="manifest" href="/assets/favicon/site.webmanifest" />
+<meta name="theme-color" content="#0b1220" />
+
+<body>
+  <div class="bg-grid"></div>
+
+  <header class="navbar">
+    <div class="container navbar-inner">
+<div class="logo">
+  <img
+    src="/assets/logo-mark.png"
+    alt="SafeStack logo"
+    class="logo-icon"
+  />
+  <span>SafeStack</span>
+</div>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="blog.html">Blog</a>
+        <a href="updates.html">Updates</a>
+        <a href="resources.html">Resources</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="container">
+      <h1 class="page-title">Updates</h1>
+      <p class="page-subtitle">Changelog-style updates from SafeStack.</p>
+
+      <div class="divider"></div>
+
+      <section class="card content" id="profileCard">
+        <div class="muted">Loading profile…</div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h3 class="section-title">Latest</h3>
+            <p class="section-subtitle">Pinned updates first, newest to oldest.</p>
+          </div>
+          <a class="link" href="status.html">Status →</a>
+        </div>
+
+        <div class="grid" id="updatesGrid"></div>
+      </section>
+
+      <p class="muted small" id="updatedAt"></p>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>
+        © 2026 SafeStack · Learn. Secure. Grow. ·
+                <a class="link" href="responsible-disclosure.html">Responsible Disclosure</a>
+         · 
+        <a class="link" href="status.html">Status</a>
+      </p>
+    </div>
+  </footer>
+
+  <script src="js/maintenance.js"></script>
+  <script src="js/main.js"></script>
+
+  <script>
+    const esc = (s) =>
+      String(s ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+
+    const fmtDate = (iso) => {
+      try {
+        return new Date(iso).toLocaleString(undefined, {
+          year: "numeric",
+          month: "short",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+      } catch {
+        return iso;
+      }
+    };
+
+    // Icons + tooltip definitions
+    const BADGES = {
+      Owner:       { icon: "👑", cls: "owner", tip: "Site owner. Controls publishing and configuration." },
+      Admin:       { icon: "🛡️", cls: "admin", tip: "Administrator. Full access and moderation controls." },
+      Dev:         { icon: "💻", cls: "dev", tip: "Developer. Builds features and maintains the site." },
+      Security:    { icon: "🔐", cls: "security", tip: "Security role. Focused on hardening and safe practices." },
+      Staff:       { icon: "🎛️", cls: "staff", tip: "Staff. Helps keep things organized and running." },
+      Moderator:   { icon: "🧰", cls: "moderator", tip: "Moderator. Helps with community rules and cleanup." },
+      Mod:         { icon: "🧰", cls: "mod", tip: "Moderator. Helps with community rules and cleanup." },
+      Contributor: { icon: "🧩", cls: "contributor", tip: "Contributor. Helps with content, docs, or fixes." },
+      Verified:    { icon: "✔",  cls: "verified", tip: "Verified identity for official SafeStack updates." }
+    };
+
+    const ORDER = ["Owner","Admin","Dev","Security","Staff","Moderator","Mod","Contributor","Verified"];
+
+    function normalizeBadges(list, verified) {
+      const set = new Set((Array.isArray(list) ? list : []).map(x => String(x).trim()).filter(Boolean));
+      if (verified) set.add("Verified");
+      return [...set];
+    }
+
+    function renderBadges(badges) {
+      const ordered = [];
+
+      for (const k of ORDER) if (badges.includes(k)) ordered.push(k);
+      for (const b of badges) if (!ordered.includes(b)) ordered.push(b);
+
+      return ordered.map((b) => {
+        const meta = BADGES[b] || { icon: "🏷️", cls: "staff", tip: "Custom badge." };
+        return `
+          <span class="ss-badge ${meta.cls}"
+                data-tip="${esc(meta.tip)}">
+            <span class="ic" aria-hidden="true">${meta.icon}</span>
+            ${esc(b)}
+          </span>
+        `;
+      }).join("");
+    }
+
+    (async () => {
+      let data;
+      try {
+        const res = await fetch("/data/updates.json", { cache: "no-store" });
+        if (!res.ok) throw new Error();
+        data = await res.json();
+      } catch {
+        document.getElementById("profileCard").innerHTML =
+          "<div class='muted'>Missing <code>/data/updates.json</code></div>";
+        return;
+      }
+
+      const profile = data.profile || {};
+      const updates = Array.isArray(data.updates) ? data.updates : [];
+
+      const badges = normalizeBadges(profile.badges, profile.verified === true);
+
+      // Avatar ring on when Admin or Verified exists
+      const ringOn = badges.includes("Admin") || badges.includes("Verified") || badges.includes("Owner");
+
+      const avatar = profile.avatar || "/assets/pfp.gif";
+
+      document.getElementById("profileCard").innerHTML = `
+        <div style="display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
+          <div class="ss-avatar-wrap ${ringOn ? "ring-on" : ""}">
+            <div class="ss-avatar-ring" aria-hidden="true"></div>
+            <div class="ss-avatar">
+              <img src="${esc(avatar)}" alt="Profile picture"
+                   onerror="this.style.display='none'; this.parentElement.style.background='radial-gradient(80px 60px at 30% 30%, rgba(56,189,248,0.18), rgba(34,197,94,0.12)), rgba(255,255,255,0.03)';" />
+            </div>
+          </div>
+
+          <div style="flex:1; min-width: 220px;">
+            <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+              <h3 style="margin:0;">${esc(profile.displayName || "SafeStack")}</h3>
+              <div class="ss-badges">
+                ${renderBadges(badges)}
+              </div>
+            </div>
+            <p class="muted" style="margin-top:0.35rem;">${esc(profile.handle || "")}</p>
+          </div>
+
+          <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+            <a class="btn btn-ghost" href="status.html">Status</a>
+            <a class="btn btn-primary" href="blog.html">Blog →</a>
+          </div>
+        </div>
+      `;
+
+      // Sort pinned first then newest
+      updates.sort((a, b) => {
+        const ap = a.pinned ? 1 : 0;
+        const bp = b.pinned ? 1 : 0;
+        if (ap !== bp) return bp - ap;
+        return new Date(b.date) - new Date(a.date);
+      });
+
+      const grid = document.getElementById("updatesGrid");
+      grid.innerHTML = "";
+
+      if (!updates.length) {
+        grid.innerHTML = `
+          <div class="card is-visible">
+            <h3>No updates yet</h3>
+            <p class="muted">Updates will appear here once published.</p>
+          </div>`;
+      }
+
+      for (const u of updates) {
+        const tags = Array.isArray(u.tags) ? u.tags : [];
+        const el = document.createElement("article");
+        el.className = "card is-visible";
+        el.innerHTML = `
+          <div style="display:flex; justify-content:space-between; gap:0.75rem;">
+            <h3 style="margin:0;">${esc(u.title || "Update")}</h3>
+            ${u.pinned ? `<span class="ss-badge dev" data-tip="Pinned update"><span class="ic" aria-hidden="true">📌</span> Pinned</span>` : ""}
+          </div>
+
+          <div class="meta" style="margin-top:0.55rem;">
+            <span>${esc(fmtDate(u.date))}</span>
+            <span class="dot">•</span>
+            <span>${esc(profile.displayName || "SafeStack")}</span>
+          </div>
+
+          <p style="margin-top:0.75rem;">${esc(u.body || "")}</p>
+
+          <div class="tags" style="margin-top:0.75rem;">
+            ${tags.map(t => `<span class="tag">${esc(t)}</span>`).join("")}
+          </div>
+        `;
+        grid.appendChild(el);
+      }
+
+    })();
+  </script>
+</body>
+</html>

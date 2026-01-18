@@ -1,0 +1,144 @@
+{
+  "site": {
+    "name": "SafeStack",
+    "baseUrl": "http://127.0.0.1:8000"
+  },
+
+  "maintenance": {
+    "enabled": false,
+    "mode": "page",
+    "severity": "warning",
+
+    "title": "Under Maintenance",
+    "message": "We’re deploying updates to improve performance, reliability, and security.",
+    "submessage": "Some pages may be temporarily unavailable during this rollout.",
+
+    "showIcon": true,
+    "showStatusButton": true,
+    "statusPagePath": "/status.html",
+
+    "primaryButton": {
+      "label": "View Status",
+      "href": "/status.html"
+    },
+    "secondaryButton": {
+      "label": "Back to Home",
+      "href": "/index.html"
+    },
+
+    "window": {
+      "start": "2026-01-18T00:00:00Z",
+      "eta": "2026-01-18T01:10:00Z",
+      "progress": 100
+    },
+
+    "updates": [
+      "Deploying edge cache rules",
+      "Rolling restart of API workers",
+      "Applying database connection tuning",
+      "Running post-deploy health checks",
+      "Warming application caches",
+      "Validating critical routes and endpoints"
+    ],
+
+    "allowedPaths": [
+      "/status.html",
+      "/config.json",
+      "/.well-known/security.txt"
+    ]
+  },
+
+  "status": {
+    "updatedAt": "2026-01-18T00:00:00Z",
+
+    "components": [
+      {
+        "name": "Website",
+        "type": "static",
+        "status": "operational",
+        "details": "Core pages, assets, and frontend rendering"
+      },
+      {
+        "name": "Blog",
+        "type": "static",
+        "status": "operational",
+        "details": "Posts, write-ups, and learning content"
+      },
+      {
+        "name": "Contact System",
+        "type": "external",
+        "status": "maintenance",
+        "details": "Messages handled via email/manual workflow"
+      },
+      {
+        "name": "SafeStack API",
+        "type": "api",
+        "status": "operational",
+        "details": "Internal telemetry, health, and lightweight service endpoints",
+        "checkUrl": "https://api.safestack.site/health",
+        "method": "GET",
+        "timeoutMs": 2500
+      }
+    ],
+
+    "timeline": [
+      {
+        "date": "2026-01-18",
+        "status": "operational",
+        "note": "Scheduled deployment in progress"
+      },
+      {
+        "date": "2026-01-17",
+        "status": "operational",
+        "note": "All systems normal"
+      },
+      {
+        "date": "2026-01-16",
+        "status": "operational",
+        "note": "All systems normal"
+      },
+      {
+        "date": "2026-01-15",
+        "status": "degraded",
+        "note": "Increased API latency (resolved)"
+      },
+      {
+        "date": "2026-01-14",
+        "status": "operational",
+        "note": "All systems normal"
+      }
+    ],
+
+    "incidents": [
+      {
+        "title": "SafeStack API Elevated Latency",
+        "status": "degraded",
+        "impact": "minor",
+        "summary": "A subset of API requests experienced elevated response times. No data loss or request failures occurred.",
+        "affectedComponents": [
+          "SafeStack API"
+        ],
+        "startedAt": "2026-01-15T19:05:00Z",
+        "resolvedAt": "2026-01-15T20:02:00Z",
+        "updates": [
+          {
+            "time": "2026-01-15 19:05Z",
+            "message": "Monitoring detected increased response latency on the API."
+          },
+          {
+            "time": "2026-01-15 19:18Z",
+            "message": "Identified database connection saturation under peak load."
+          },
+          {
+            "time": "2026-01-15 19:36Z",
+            "message": "Applied connection pool tuning and enabled caching for high-traffic endpoints."
+          },
+          {
+            "time": "2026-01-15 20:02Z",
+            "message": "Latency returned to normal levels. Incident resolved."
+          }
+        ]
+      }
+    ]
+  }
+}
